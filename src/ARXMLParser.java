@@ -10,8 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 class FramePortInfo {
+
     private String shortName;
     private String communicationDirection;
 
@@ -51,16 +53,25 @@ public class ARXMLParser {
 
     public static void main(String[] args) {
 
-        String canClusterName = "enter_cluster_name_here";
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Unesite naziv arxml fajla: ");
+        String filename = scanner.nextLine();
+        if (filename.startsWith("\"")) {
+            // Check if the string ends with a double quote
+            if (filename.endsWith("\"")) {
+                // Remove the double quotes from the beginning and end
+                filename = filename.substring(1, filename.length() - 1);
+            }
+        }
+        System.out.print("Unesite naziv cluster-a: ");
+        String canClusterName = scanner.nextLine();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
 
-            // Get Document
-            Document document = builder.parse(new File("sample.arxml"));
+            Document document = builder.parse(new File(filename));
 
-            // Normalize the xml structure
             document.getDocumentElement().normalize();
 
             List<FramePortInfo> framePortList = new ArrayList<>();
@@ -83,7 +94,6 @@ public class ARXMLParser {
                         Element canFrameTriggeringElement = (Element) canFrameTriggeringElements.item(j);
                         String frameShortName = canFrameTriggeringElement.getElementsByTagName("SHORT-NAME").item(0).getTextContent();
                         String framePortRefs = canFrameTriggeringElement.getElementsByTagName("FRAME-PORT-REFS").item(0).getTextContent();
-                        // Extract the text behind the last "/" in framePortRefs.
                         int lastSlashIndex = framePortRefs.lastIndexOf("/");
                         if (lastSlashIndex >= 0) {
                             framePortRefs = framePortRefs.substring(lastSlashIndex + 1);
